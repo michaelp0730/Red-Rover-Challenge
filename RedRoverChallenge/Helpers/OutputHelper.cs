@@ -1,7 +1,60 @@
 namespace RedRoverChallenge.Helpers;
 
-public static class Output1Helper
+public static class OutputHelper
 {
+    public static string AlphabetizeInputString(string input)
+    {
+        string SortStringSegment(string stringSegment)
+        {
+            var stringsList = new List<string>();
+            var startIndex = 0;
+            var parenthesisCount = 0;
+
+            for (var i = 0; i < stringSegment.Length; i += 1)
+            {
+                switch (stringSegment[i])
+                {
+                    case '(':
+                        parenthesisCount++;
+                        break;
+
+                    case ')':
+                        parenthesisCount--;
+                        break;
+
+                    case ',' when parenthesisCount == 0:
+                        stringsList.Add(stringSegment.Substring(startIndex, i - startIndex).Trim());
+                        startIndex = i + 1;
+                        break;
+                }
+            }
+
+            stringsList.Add(stringSegment.Substring(startIndex).Trim());
+            var sortedStrings = new List<string>();
+
+            foreach (var item in stringsList)
+            {
+                if (item.Contains('('))
+                {
+                    var openParenIndex = item.IndexOf('(');
+                    var itemBeforeParens = item.Substring(0, openParenIndex);
+                    var itemsInParens = item.Substring(openParenIndex + 1, item.Length - openParenIndex - 2);
+                    sortedStrings.Add($"{itemBeforeParens}({SortStringSegment(itemsInParens)})");
+                }
+                else
+                {
+                    sortedStrings.Add(item);
+                }
+            }
+
+            sortedStrings.Sort(StringComparer.OrdinalIgnoreCase);
+            return string.Join(", ", sortedStrings);
+        }
+
+        var innerContent = input.Trim().Substring(1, input.Length - 2);
+        return $"({SortStringSegment(innerContent)})";
+    }
+
     public static List<object> ConvertStringToNestedLists(string inputString)
     {
         var currIndex = 0;
